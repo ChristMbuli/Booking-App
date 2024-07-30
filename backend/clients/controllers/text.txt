@@ -1,0 +1,140 @@
+<section>
+    <header></header>
+    <div class="container">
+        <form method="get">
+            <input type="text" name="city" placeholder="ville" value="<?= isset($_GET['city']) ? htmlspecialchars($_GET['city']) : '' ?>">
+            <input type="text" name="district" placeholder="quartier" value="<?= isset($_GET['district']) ? htmlspecialchars($_GET['district']) : '' ?>">
+            <button type="submit" name="search">Recherche</button>
+        </form>
+        <div class="row">
+            <!-- Erreur search -->
+            <?php echo $searchMessage; ?>
+            <!-- Afficher les résultats de la recherche -->
+
+            <?php if (count($searchResults) > 0) {
+                foreach ($searchResults as $row) { ?>
+                    <a href="">
+                        <img src="<?= $row['house_image'] ?>" alt="">
+                        <p><?= $row['city'] . ' ' . $row['district'] ?></p>
+                        <small><?= $row['rent'] ?></small>
+                    </a>
+            <?php }
+            }
+            ?>
+
+
+        </div>
+    </div>
+</section>
+/////////////////////
+<section>
+    <div class="container">
+        <h1>Recherche</h1>
+        <form method="get">
+            <input type="text" name="city" placeholder="ville"
+                value="<?= isset($_GET['city']) ? htmlspecialchars($_GET['city']) : '' ?>">
+            <input type="text" name="district" placeholder="quartier"
+                value="<?= isset($_GET['district']) ? htmlspecialchars($_GET['district']) : '' ?>">
+            <button type="submit" name="search">Recherche</button>
+        </form>
+    </div>
+    <hr>
+    <div class="container">
+        <h1>Filtrer</h1>
+        <form method="get">
+            <div class="checkbox">
+                <label><input type="checkbox" class="icheck" name="appartm" value="faux"> Appartement
+                    meublé</label>
+
+                <label><input type="checkbox" class="icheck" name="appartv" value="vrai"> Appartement
+                    Vide</label>
+
+                <label><input type="checkbox" class="icheck" name="studionv" value="Studio Vide"> Studio Vide</label>
+
+                <label><input type="checkbox" class="icheck" name="studiom" value="Studio Meublé"> Studio
+                    Meublé</label>
+
+                <label><input type="checkbox" class="icheck" name="chambrem" value="Chambre Meublé"> Chambre
+                    Meublé</label>
+                <input type="number" name="bedromm" placeholder="nombre Chambre">
+                <input type="number" name="rent" placeholder="loyer">
+                <input type="number" name="caution" placeholder="Caution">
+            </div>
+            <button type="submit" name="filter">Filtrer (5)
+                <!--Afficher les nombre des maison dans (5)  -->
+            </button>
+        </form>
+    </div>
+    <hr>
+    <hr>
+    <h1>Afficher le resultat de la recherche ou du filtrage</h1>
+    <div class="row">
+        <!-- Erreur search -->
+        <?php echo $searchMessage; ?>
+        <!-- Afficher les résultats de la recherche -->
+
+        <?php if (count($searchResults) > 0) {
+            foreach ($searchResults as $row) { ?>
+        <a href="">
+            <img src="<?= $row['house_image'] ?>" alt="">
+            <p><?= $row['city'] . ' ' . $row['district'] ?></p>
+            <small><?= $row['rent'] ?></small>
+        </a>
+        <?php }
+        }
+        ?>
+    </div>
+</section>
+
+/////////////////
+//Faire le filtre
+if (isset($_GET['filter'])) {
+    $appartm = isset($_GET['appartm']) ? $_GET['appartm'] : '';
+    $appartv = isset($_GET['appartv']) ? $_GET['appartv'] : '';
+    $studionv = isset($_GET['studionv']) ? $_GET['studionv'] : '';
+    $studiom = isset($_GET['studiom']) ? $_GET['studiom'] : '';
+    $chambrem = isset($_GET['chambrem']) ? $_GET['chambrem'] : '';
+    $bedromm = isset($_GET['bedromm']) ? $_GET['bedromm'] : '';
+    $rent = isset($_GET['rent']) ? $_GET['rent'] : '';
+    $caution = isset($_GET['caution']) ? $_GET['caution'] : '';
+
+    $select = 'SELECT houses.id_house, houses.city, houses.district, houses.rent, houses.npersonn, houses.id_user,houses.created_at,
+    (SELECT tag FROM house_tags WHERE house_tags.tag = ?)
+    INNER JOIN house_tags ON houses.id_house = house_tags.id_house 
+    (SELECT medias.images FROM medias WHERE medias.id_house = houses.id_house LIMIT 1) AS house_image
+  FROM houses 
+  WHERE 1 = 1';
+    $request = array($appartm, $appartv, $studionv, $studiom,);
+
+    // Construire dynamiquement la requête en fonction des paramètres pour filtrer
+    if (!empty($city)) {
+        $conditions[] = "city LIKE :city";
+    }
+
+    if (!empty($district)) {
+        $conditions[] = "district LIKE :district";
+    }
+
+    if (!empty($conditions)) {
+        $query .= ' AND ' . implode(' AND ', $conditions);
+    }
+
+    $query .= ' ORDER BY id_house DESC';
+
+    // Préparer la requête
+    $searchQuery = $conn->prepare($query);
+
+    // Associer les valeurs aux paramètres
+    if (!empty($city)) {
+        $searchQuery->bindValue(':city', "%$city%");
+    }
+
+    if (!empty($district)) {
+        $searchQuery->bindValue(':district', "%$district%");
+    }
+
+    // Exécuter la requête
+    $searchQuery->execute();
+
+    // Récupérer les résultats
+    $searchResults = $searchQuery->fetchAll();

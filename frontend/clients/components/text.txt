@@ -1,0 +1,16 @@
+ <div>
+                    <?php if ($ReqUsers->rowCount() == 0) {
+                        echo $msg;
+                    } else { ?>
+                    <div class="row">
+                        <?php while ($user = $ReqUsers->fetch()) {
+                                // Format the date using DateTime
+                                $date = new DateTime($user['last_message_date']);
+                                $formattedDate = $date->format('Y-m-d H:i:s');
+                            ?>
+                        <p><?= $user['fname'] . ' ' . $user['lname'] ?></p>
+                        
+                        <?php } ?>
+                    </div>
+                    <?php } ?>
+                </div>

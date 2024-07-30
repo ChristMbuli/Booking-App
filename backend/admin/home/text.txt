@@ -1,0 +1,36 @@
+<div class="container">
+    <?php while ($houses = $ReqAllHouseAdmin->fetch()) { ?>
+    <tr>
+        <th scope="row">
+            <?php
+                $img = $houses['images'];
+                $img = str_replace('./../', '', $img);
+                ?>
+            <img src="<?= $houses['images'] ?>" alt="Photo de la maison" height="70" width="70" class="rounded">
+
+        </th>
+        <td><?= $houses['city'] ?></td>
+        <td><?= $houses['district'] ?> </td>
+        <td><a href="single.php?id=<?= $houses['id_house'] ?>">Voir plus..</a></td>
+    </tr>
+    <?php } ?>
+    <nav aria-label="Page navigation example ">
+        <ul class="pagination">
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="Première page">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <?php for ($i = 1; $i <= $totalPages; $i++) : ?>
+            <li class="page-item <?= ($page == $i) ? 'active' : ''; ?>">
+                <a class="page-link" href="?page=<?= $i; ?>"><?= $i; ?></a>
+            </li>
+            <?php endfor; ?>
+            <li class="page-item">
+                <a class="page-link" href="?page=<?= $totalPages; ?>" aria-label="Dernière page">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>

@@ -1,0 +1,11 @@
+       if (isset($_SESSION['visitor'])) {
+                    // L'utilisateur est déjà connecté, redirigez-le vers l'URL stockée dans le paramètre GET "url" s'il existe, sinon vers index.php par défaut
+                    if (isset($_GET['url'])) {
+                        header('Location: ' . $_GET['url']);
+                    } elseif (isset($_GET['link'])) {
+                        header('Location: ' . $_GET['link']);
+                    } else {
+                        header('Location: index.php');
+                    }
+                    exit; // Assurez-vous de sortir du script après la redirection
+                }
